@@ -21,7 +21,7 @@
         dispImg: null,
         maskImg: null,
         shadowImg: null,
-        scale: 80,
+        scale: 60,
         offsetX: 50,
         offsetY: 50,
         dispIntensity: 40,
@@ -95,20 +95,18 @@
         const designCanvas = createOffscreen(w, h);
         const designCtx = designCanvas.getContext('2d');
 
-        const scale = state.scale / 100;
-        const dw = state.designImg.width * scale;
-        const dh = state.designImg.height * scale;
-
         // Calculate position based on mask bounds
         const maskBounds = getMaskBounds(maskData, w, h);
         const areaW = maskBounds.right - maskBounds.left;
         const areaH = maskBounds.bottom - maskBounds.top;
 
-        // Fit design within mask area
-        const fitScale = Math.min(areaW / dw, areaH / dh) * scale;
-        const finalW = state.designImg.width * fitScale;
-        const finalH = state.designImg.height * fitScale;
+        // First fit design to mask area, then apply user scale on top
+        const basefit = Math.min(areaW / state.designImg.width, areaH / state.designImg.height);
+        const userScale = state.scale / 100;
+        const finalW = state.designImg.width * basefit * userScale;
+        const finalH = state.designImg.height * basefit * userScale;
 
+        // Position: 0% = left/top edge of mask, 100% = right/bottom edge
         const cx = maskBounds.left + (areaW - finalW) * (state.offsetX / 100);
         const cy = maskBounds.top + (areaH - finalH) * (state.offsetY / 100);
 
@@ -286,12 +284,12 @@
 
     // Reset
     document.getElementById('resetBtn').addEventListener('click', () => {
-        state.scale = 80;
+        state.scale = 60;
         state.offsetX = 50;
         state.offsetY = 50;
         state.dispIntensity = 40;
-        document.getElementById('scaleSlider').value = 80;
-        document.getElementById('scaleValue').textContent = '80%';
+        document.getElementById('scaleSlider').value = 60;
+        document.getElementById('scaleValue').textContent = '60%';
         document.getElementById('xSlider').value = 50;
         document.getElementById('ySlider').value = 50;
         document.getElementById('dispSlider').value = 40;
